@@ -34,6 +34,7 @@ namespace webrtc_dotnetcore
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSignalR();
+            services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,17 +54,21 @@ namespace webrtc_dotnetcore
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-
-            app.UseSignalR(routes =>
+            
+            // fix: UseSignalR is deprecated.
+            // We will use UseRouting and UseEndpoints instead.
+            // And also remove the deprecated Razor page nuget package.
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapHub<Hubs.WebRTCHub>("/WebRTCHub");
+                endpoints.MapHub<Hubs.WebRTCHub>("/WebRTCHub");
             });
 
-            app.UseMvc(routes =>
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }
